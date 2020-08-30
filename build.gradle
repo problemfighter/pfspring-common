@@ -1,0 +1,133 @@
+
+
+plugins {
+    id 'java'
+    id 'signing'
+    id 'maven-publish'
+    id "com.jfrog.bintray" version "1.8.5"
+}
+
+
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url "https://dl.bintray.com/hmtmcse/maven/" }
+    maven { url "https://dl.bintray.com/problemfighter/java/" }
+}
+
+
+group = 'com.problemfighter.pfspring.common'
+version = '1.0.0'
+
+
+def dependencyList = []
+
+dependencies {
+    dependencyList.each {
+        if (findProject(":" + it)){
+            implementation project(":" + it)
+        }
+    }
+}
+
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compile
+    options.addBooleanOption('html5', true)
+}
+
+task makeDoc {
+    dependsOn(javadoc)
+    doLast {
+        def docDirectory = file("docs")
+        if (!docDirectory.exists()){
+            docDirectory.mkdirs();
+        }
+        delete "docs/javadoc"
+        copy{
+            from "$buildDir/docs/javadoc"
+            into 'docs/javadoc'
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+task javadocJar(type: Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+
+Boolean isPublish = true
+if (isPublish) {
+    bintray {
+
+        user = (project.hasProperty('bintrayUser') ? project.property('bintrayUser') : "hmtmcse" )
+        key =  (project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : "123" )
+        publish = true
+        override = true
+        publications = ['mavenJava']
+        pkg {
+            repo = 'java'
+            name = 'com.problemfighter.pfspring.common'
+            desc = 'Problem Fighter Spring Boot Common'
+            vcsUrl = 'https://github.com/problemfighter/pfspring-common.git'
+            websiteUrl = 'https://github.com/problemfighter/pfspring-common'
+            issueTrackerUrl = 'https://github.com/problemfighter/pfspring-common/issues'
+            licenses = ['Apache-2.0']
+        }
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                artifactId = 'pfspring-common'
+                groupId = 'com.problemfighter.pfspring.common'
+                from components.java
+                artifact sourcesJar
+//                artifact javadocJar
+                versionMapping {
+                    usage('java-api') {
+                        fromResolutionOf('runtimeClasspath')
+                    }
+                    usage('java-runtime') {
+                        fromResolutionResult()
+                    }
+                }
+                pom {
+                    name = 'Problem Fighter Spring Boot Common'
+                    description = 'Problem Fighter Spring Boot Common'
+                    url = 'http://www.hmtmcse.com/opensource/pfspring/common'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'hmtmcse'
+                            name = 'H.M Touhid Mia'
+                            email = 'hmtm.cse@gmail.com'
+                        }
+                    }
+                    scm {
+                        connection = 'scm:git:https://github.com/problemfighter/pfspring-common.git'
+                        developerConnection = 'scm:git:https://github.com/problemfighter/pfspring-common.git'
+                        url = 'https://github.com/problemfighter/pfspring-common'
+                    }
+                }
+            }
+        }
+    }
+
+    signing {
+        sign publishing.publications.mavenJava
+    }
+}
+
