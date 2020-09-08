@@ -7,6 +7,8 @@ plugins {
     id "com.jfrog.bintray" version "1.8.5"
 }
 
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 
 
 repositories {
@@ -21,7 +23,9 @@ group = 'com.problemfighter.pfspring.common'
 version = '1.0.0'
 
 
-def dependencyList = []
+def dependencyList = [
+        "pf-java-object-copier"
+]
 
 dependencies {
     dependencyList.each {
@@ -29,6 +33,8 @@ dependencies {
             implementation project(":" + it)
         }
     }
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation "io.springfox:springfox-swagger2:$springfox"
 }
 
 javadoc {
