@@ -1,5 +1,7 @@
 package com.problemfighter.pfspring.common.common;
 
+import org.springframework.lang.Nullable;
+
 import java.util.Random;
 import java.util.UUID;
 
@@ -25,6 +27,10 @@ public final class AppCommonUtil {
     public static String randomNumeric(Integer limit, Integer boundary) {
         Random rand = new Random();
         return String.format("%0" + limit + "d", rand.nextInt(boundary));
+    }
+
+    public static Boolean stringIsNullOrEmpty(@Nullable String string) {
+        return string == null || string.isEmpty();
     }
 
 }
