@@ -13,9 +13,6 @@ apply plugin: 'io.spring.dependency-management'
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven { url "https://dl.bintray.com/hmtmcse/maven/" }
-    maven { url "https://dl.bintray.com/problemfighter/java/" }
 }
 
 
@@ -71,7 +68,7 @@ task javadocJar(type: Jar) {
 }
 
 
-Boolean isPublish = true
+Boolean isPublish = false
 if (isPublish) {
     bintray {
 
@@ -92,13 +89,24 @@ if (isPublish) {
     }
 
     publishing {
+
+        repositories {
+            maven {
+                credentials {
+                    username = (project.hasProperty('ossrhUsername') ? project.property('ossrhUsername') : "hmtmcse" )
+                    password = (project.hasProperty('ossrhPassword') ? project.property('ossrhPassword') : "123" )
+                }
+                url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            }
+        }
+
         publications {
             mavenJava(MavenPublication) {
                 artifactId = 'pfspring-common'
                 groupId = 'com.problemfighter.pfspring.common'
                 from components.java
                 artifact sourcesJar
-//                artifact javadocJar
+                artifact javadocJar
                 versionMapping {
                     usage('java-api') {
                         fromResolutionOf('runtimeClasspath')
