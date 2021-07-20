@@ -4,7 +4,6 @@ plugins {
     id 'java'
     id 'signing'
     id 'maven-publish'
-    id "com.jfrog.bintray" version "1.8.5"
 }
 
 apply plugin: 'org.springframework.boot'
@@ -36,26 +35,6 @@ dependencies {
 bootJar { enabled = false }
 jar { enabled = true }
 
-javadoc {
-    source = sourceSets.main.allJava
-    classpath = configurations.compile
-    options.addBooleanOption('html5', true)
-}
-
-task makeDoc {
-    dependsOn(javadoc)
-    doLast {
-        def docDirectory = file("docs")
-        if (!docDirectory.exists()){
-            docDirectory.mkdirs();
-        }
-        delete "docs/javadoc"
-        copy{
-            from "$buildDir/docs/javadoc"
-            into 'docs/javadoc'
-        }
-    }
-}
 
 task sourcesJar(type: Jar) {
     from sourceSets.main.allJava
@@ -70,23 +49,6 @@ task javadocJar(type: Jar) {
 
 Boolean isPublish = false
 if (isPublish) {
-    bintray {
-
-        user = (project.hasProperty('bintrayUser') ? project.property('bintrayUser') : "hmtmcse" )
-        key =  (project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : "123" )
-        publish = true
-        override = true
-        publications = ['mavenJava']
-        pkg {
-            repo = 'java'
-            name = 'com.problemfighter.pfspring.common'
-            desc = 'Problem Fighter Spring Boot Common'
-            vcsUrl = 'https://github.com/problemfighter/pfspring-common.git'
-            websiteUrl = 'https://github.com/problemfighter/pfspring-common'
-            issueTrackerUrl = 'https://github.com/problemfighter/pfspring-common/issues'
-            licenses = ['Apache-2.0']
-        }
-    }
 
     publishing {
 
